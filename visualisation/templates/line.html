@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{%load plotly_dash%} 
+{%block heading%}Line plots of the numeric fields.{%endblock heading%}
+
+{% block content %}
+{%plotly_direct name="SimpleExample2"%}
+{% endblock content %}
