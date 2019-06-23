@@ -35,6 +35,6 @@ html{
     height:500px !important;
 }
 
-/* #demofour li[style] {
-    display: inline !important;
-}  */
+#sidebar a{
+    color:white;
+}

@@ -20,7 +20,7 @@
 </head>
 <body>
     <div class="row">
-        <div class="col-lg-2" id="sidebar"></div>
+        <div class="col-lg-2" id="sidebar">{%block sidebar%}{%endblock sidebar%}</div>
         <div class="col-lg-10"><div class="content"><h4>{%block heading%}Visualize your inputs here!{%endblock heading%}</h4>{%block content%} {%endblock content%}</div></div>
     </div>
     {% plotly_footer %}   
