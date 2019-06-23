@@ -10,7 +10,7 @@ from django_plotly_dash import DjangoDash
 import pandas as pd
 import plotly.graph_objs as go
 import random
-
+import numpy as np
 original_df=pd.DataFrame()
 
 #parameter df from stats function
@@ -191,7 +191,42 @@ def scatterPlot():
                 hovermode='closest'
             )}
         
+#bar plot
+def barPlot():
+    df = pd.read_csv('https://raw.githubusercontent.com/saranyailla/Blockchain-Election/master/test.csv')
+    numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
+    df = df.select_dtypes(include=numerics)
+    num_lab=[]
+    for i in list(df):
+        labels=dict()
+        labels["label"]=i
+        labels["value"]=i
+        num_lab.append(labels)
 
+    app =DjangoDash("barPlot")
+    app.layout=html.Div([
+        html.Div([
+            html.P('Choose axes and category to plot the scatter plot'),
+            dcc.Dropdown(id="column-value",value=num_lab[1]['value'],options=num_lab,placeholder="Select Column")],
+         style={"display": "block", "width": "30%"}),
+        html.Div([dcc.Graph(id='bar-graph')])
+    ],className="container")
 
+    @app.callback(
+    Output('bar-graph', 'figure'),
+    [Input('column-value', 'value')])
+    def update_figure(column):
+        dff = df
+        diff=(dff[column].max()-dff[column].min())/10
+        bins = np.arange(dff[column].min(),dff[column].max()+diff, diff)
+        dff['bins'] = pd.cut(dff[column], bins, include_lowest=True)
+        d=dff['bins'].value_counts().sort_index().reset_index()
+        trace = []
+        trace=[{'x':bins , 'y':d['bins'].to_list(), 'type': 'bar', 'name': column}]
+        return {"data": trace,
+                "layout":{
+                     'title': "Bins at "+str(bins)
+                    }
+                }
     
 
