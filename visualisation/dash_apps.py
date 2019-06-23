@@ -15,8 +15,10 @@ original_df=pd.DataFrame()
 
 #parameter df from stats function
 def lineplot():
+    #uncomment the below 2lines
     # global original_df
     # df = original_df
+    #comment out the below line
     df=pd.read_csv('https://raw.githubusercontent.com/saranyailla/Blockchain-Election/master/test.csv')
     numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
     df = df.select_dtypes(include=numerics)
@@ -132,4 +134,64 @@ def columnStats():
         a['Standard Deviation']=round(num_columns[i].std(),2)
         b[i]=a    
     return b
+
+
+#Scatterplot
+#pass df parameter from stats function,use global df
+def scatterPlot():
+    # global original_df
+    df = pd.read_csv('https://raw.githubusercontent.com/saranyailla/Blockchain-Election/master/test.csv')
+    numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
+    num_columns = df.select_dtypes(include=numerics) 
+    app =DjangoDash("scatterPlot")
+    cat_lab=[]
+    num_lab=[]
+    for i in list(df):
+        labels=dict()
+        labels["label"]=i
+        labels["value"]=i
+        if((len(df[i].unique())/len(df))<0.2):
+            cat_lab.append(labels)
+        else:
+            if i in list(num_columns):
+                num_lab.append(labels)
+    app.layout =html.Div([
+                        html.Div([html.P('Choose axes and category to plot the scatter plot'),
+                        dcc.Dropdown(id="first-value",value=num_lab[1]['value'],options=num_lab,placeholder="Select X-Axis"),
+                        dcc.Dropdown(id="second-value",value=num_lab[1]['value'],options=num_lab,placeholder="Select Y-Axis"),
+                        dcc.Dropdown(id="category-value",value=cat_lab[0]['value'],options=cat_lab,placeholder="Select Category")],
+                         style={"display": "block", "width": "30%"}),
+                        html.Div([dcc.Graph(id='scatter-graph')])], className="container")
+
+    @app.callback(
+        Output('scatter-graph', 'figure'),
+        [Input('first-value', 'value'),Input('second-value', 'value'),Input('category-value', 'value')])
+    def update_figure(first,second,third):
+        dff = df
+        trace = []
+        trace=[
+                go.Scatter(
+                    x=dff[dff[third] == i][first],
+                    y=dff[dff[third] == i][second],                    
+                    mode='markers',
+                    opacity=0.7,
+                    marker={
+                        'size': 15,
+                        'line': {'width': 0.5, 'color': 'white'}
+                    },
+                    name=str(i)
+                ) for i in dff[third].unique()
+        ]
+        return {"data": trace,
+                "layout": go.Layout(
+                xaxis={'type':'log','title': first},
+                yaxis={'title': second},
+                margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
+                legend={'x': 0, 'y': 1},
+                hovermode='closest'
+            )}
+        
+
+
+    
 
